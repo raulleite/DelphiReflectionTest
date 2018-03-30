@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2017/11/27 19:01:40.000.563,=C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 19:55:28.000.976,=C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 19:57:31.000.640,=C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2018/03/29 19:58:17.000.728,C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Unit2.pas=D:\sources\pascal\test\interfaces\IConnection.pas</Transaction>
+    <Transaction>2018/03/29 19:58:36.000.863,C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Unit1.dfm=D:\sources\pascal\test\uFMain.dfm</Transaction>
+    <Transaction>2018/03/29 19:58:36.000.863,C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\sources\pascal\test\uFMain.pas</Transaction>
+    <Transaction>2018/03/29 19:58:46.000.303,C:\Users\raulf\Documents\Embarcadero\Studio\Projects\Project1.dproj=D:\sources\pascal\test\Test.dproj</Transaction>
+    <Transaction>2018/03/29 20:00:12.000.724,D:\sources\pascal\test\interfaces\IConnection.pas=D:\sources\pascal\test\interfaces\uIConnection.pas</Transaction>
+    <Transaction>2018/03/29 20:01:55.000.782,=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 20:02:43.000.956,D:\sources\pascal\test\Unit1.pas=D:\sources\pascal\test\core\connections\uFirebirdConn.pas</Transaction>
+    <Transaction>2018/03/29 20:13:44.000.310,=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 20:14:04.000.463,D:\sources\pascal\test\Unit1.pas=D:\sources\pascal\test\core\connections\uPostgreSqlConn.pas</Transaction>
+    <Transaction>2018/03/29 20:15:24.000.902,=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 20:15:44.000.241,D:\sources\pascal\test\Unit1.pas=D:\sources\pascal\test\models\uEntity.pas</Transaction>
+    <Transaction>2018/03/29 20:58:37.862,=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 20:58:51.237,D:\sources\pascal\test\core\connections\uMainConnection.pas=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 21:00:37.984,D:\sources\pascal\test\core\connections\uMainConn.pas=D:\sources\pascal\test\core\connections\uMainConnection.pas</Transaction>
+    <Transaction>2018/03/29 22:46:47.902,=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 22:47:20.263,D:\sources\pascal\test\core\libs\uLibObj.pas=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 23:20:25.979,=D:\sources\pascal\test\Unit1.pas</Transaction>
+    <Transaction>2018/03/29 23:22:48.589,D:\sources\pascal\test\core\attributes\uAttributes.pas=D:\sources\pascal\test\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>
