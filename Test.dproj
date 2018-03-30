@@ -95,12 +95,11 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="core\interfaces\uIConnection.pas"/>
-        <DCCReference Include="core\connections\uFirebirdConn.pas"/>
-        <DCCReference Include="core\connections\uPostgreSqlConn.pas"/>
         <DCCReference Include="models\uEntity.pas"/>
         <DCCReference Include="core\connections\uMainConn.pas"/>
         <DCCReference Include="core\libs\uLibObj.pas"/>
         <DCCReference Include="core\attributes\uAttributes.pas"/>
+        <DCCReference Include="core\libs\uLibSql.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

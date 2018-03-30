@@ -12,11 +12,14 @@ uses
   Vcl.Controls,
   Vcl.Forms,
   Vcl.Dialogs,
-  Vcl.StdCtrls;
+  Vcl.StdCtrls,
+  ZAbstractConnection,
+  ZConnection;
 
 type
   TForm1 = class(TForm)
     Button1: TButton;
+    ZConnection1: TZConnection;
     procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
@@ -30,16 +33,36 @@ var
 implementation
 
 uses
+  uLibSql,
   uLibObj,
-  uEntity;
+  uMainConn,
+  uEntity,
+  System.Generics.Collections;
 
 {$R *.dfm}
 
 procedure TForm1.Button1Click(Sender: TObject);
 var
   sql: String;
+  entity: TEntity;
+  entities: TList<TEntity>;
+  mainConn: TMainConn;
 begin
-  sql:= TLibObj<TEntity>.getSqlSelect;
+  try
+    sql:= TLibSql<TEntity>.getSqlSelect;
+    sql:= TLibSql<TEntity>.getSqlUpdate;
+    sql:= TLibSql<TEntity>.getSqlInsert;
+    sql:= TLibSql<TEntity>.getSqlDelete;
+
+    mainConn:= TMainConn.Create(ZConnection1);
+
+    entity  := mainConn.getObject<TEntity>(' where CODENTITY = 1');
+    entities:= mainConn.getListObject<TEntity>(String.Empty);
+
+    ShowMessage(entity.Nome);
+  finally
+    FreeAndNil(entity);
+  end;
 
   ShowMessage(sql);
 end;

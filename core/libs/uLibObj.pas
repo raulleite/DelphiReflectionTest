@@ -4,125 +4,109 @@ interface
 
 uses
   uAttributes,
+  ZDataset,
+  System.TypInfo,
   System.Rtti,
   System.SysUtils,
-  //System.TypInfo,
   System.Generics.Collections;
-
-const
-  SQL_SELECT = 'select %s'#13#10 +
-               '  from %s';
-
-  SQL_INSERT = 'insert     '#13#10 +
-               '  into (%s)'#13#10 +
-               'values (%s)';
-
-  SQL_UPDATE = 'update %s'#13#10 +
-               '   set %s'#13#10 +
-               ' where %s';
-
-  SQL_DELETE = 'delete    '#13#10 +
-               '  from %s '#13#10 +
-               ' where %s ';
 
 type
   TLibObj<T> = class
   private
-    class function getFields(): TList<TRttiField>;
-    class function getTableName(): String;
-    class function getGetFieldsName(): TList<String>;
-  public
-    class function getSqlSelect(): String;
+    //class function getInstanceObj(): T;
+    class function getInstanceObj(): TObject;
 
+  public
+    class function fillObject(qryObj: TZQuery): T;
   end;
 
 implementation
 
-class function TLibObj<T>.getFields(): TList<TRttiField>;
+{
+class function TLibObj<T>.getInstanceObj(): T;
 var
-  rttiType : TRttiType;
-  rttiField: TRttiField;
+  AValue          : TValue;
+  rttiType        : TRttiType;
+  rttiMethod      : TRttiMethod;
+  rttiContext     : TRttiContext;
+  rttiInstanceType: TRttiInstanceType;
+  value, return   : TValue;
 begin
-  Result:= TList<TRttiField>.Create;
+  rttiContext:= TRttiContext.Create;
+  rttiType   := rttiContext.GetType(TypeInfo(T));
 
-  rttiType:= TRttiContext.Create.GetType(TypeInfo(T));
+  value:= GetTypeData(PTypeInfo(TypeInfo(T)))^.ClassType.Create;
+  value.TryCast(TypeInfo(T), return);
 
-  for rttiField in rttiType.GetFields do
-    Result.Add(rttiField);
+  Result:= return.AsType<T>;
+
+//  for rttiMethod in rttiType.GetMethods do
+//    if ((rttiMethod.IsConstructor) and
+//        (Length(rttiMethod.GetParameters) = 0)) then
+//    begin
+//      rttiInstanceType := rttiType.AsInstance;
+//
+//      Result:= TValue(rttiMethod.Invoke(rttiInstanceType.MetaclassType, [])).AsType<T>;
+//      Break;
+//    end;
+end;
+}
+
+class function TLibObj<T>.getInstanceObj(): TObject;
+var
+  AValue          : TValue;
+  rttiType        : TRttiType;
+  rttiMethod      : TRttiMethod;
+  rttiContext     : TRttiContext;
+  rttiInstanceType: TRttiInstanceType;
+  value, return   : TValue;
+begin
+  rttiContext:= TRttiContext.Create;
+  rttiType   := rttiContext.GetType(TypeInfo(T));
+
+  value:= GetTypeData(PTypeInfo(TypeInfo(T)))^.ClassType.Create;
+  value.TryCast(TypeInfo(T), return);
+
+  Result:= return.AsType<TObject>;
 end;
 
-class function TLibObj<T>.getGetFieldsName(): TList<String>;
+class function TLibObj<T>.fillObject(qryObj: TZQuery): T;
 var
-  rttiType : TRttiType;
-  rttiField: TRttiField;
-  custonAttribute: TCustomAttribute;
-  rttiFields: TList<TRttiField>;
-  columnName: String;
-begin
-  rttiFields:= Self.getFields;
-  Result:= TList<String>.Create;
-
-  for rttiField in rttiFields do
-  begin
-    columnName:= rttiField.Name;
-    columnName:= columnName.Remove(0, 1);
-    for custonAttribute in rttiField.GetAttributes do
-      if (custonAttribute is Column) then
-      begin
-        if (Column(custonAttribute).columnName.Equals(String.Empty)) then
-          columnName:= Column(custonAttribute).columnName;
-
-        Break;
-      end;
-
-    Result.Add(columnName);
-  end;
-end;
-
-class function TLibObj<T>.getTableName(): String;
-var
-  custonAttribute: TCustomAttribute;
+  columnName     : String;
   rttiType       : TRttiType;
+  rttiField      : TRttiField;
+  custonAttribute: TCustomAttribute;
+  value          : TValue;
+  valueCur       : TValue;
+  obj            : TObject;
 begin
-  Result:= String.Empty;
-
-  rttiType:= TRttiContext.Create.GetType(TypeInfo(T));
-
-  for custonAttribute in rttiType.GetAttributes do
-    if (custonAttribute is Table) then
-    begin
-      Result:= Table(custonAttribute).tableName;
-      Break;
-    end;
-
-  if (Result = String.Empty) then
-    Result:= rttiType.Name.Remove(0, 1);
-end;
-
-
-class function TLibObj<T>.getSqlSelect(): String;
-var
-  rttiFields  : TList<TRttiField>;
-  rttiField   : TRttiField;
-  tableName   : String;
-  concatColumn: String;
-  column      : String;
-  listColumns : TList<string>;
-begin
-  Result:= String.Empty;
+  obj:= TObject(Self.getInstanceObj);
 
   try
-    tableName  := Self.getTableName;
-    listColumns:= Self.getGetFieldsName;
+    rttiType:= TRttiContext.Create.GetType(TypeInfo(T));
 
-    for column in listColumns do
-      concatColumn:= Result + column;
+    for rttiField in rttiType.GetFields do
+    begin
+      columnName:= String.Empty;
 
-    Result:= Format(SQL_SELECT,
-                    [concatColumn,
-                     tableName]);
+      for custonAttribute in rttiField.GetAttributes do
+        if (custonAttribute is Column) then
+        begin
+          if (Column(custonAttribute).columnName.Equals(String.Empty)) then
+            columnName:= Column(custonAttribute).columnName;
+
+          Break;
+        end;
+
+      if (columnName.Equals(String.Empty)) then
+        columnName:= rttiField.Name.Remove(0, 1).ToUpper;
+
+      rttiField.SetValue(obj, TValue.From<Variant>(qryObj.FieldByName(columnName).Value));
+    end;
+
+    Result:= TValue(obj).AsType<T>;
   finally
-    FreeAndNil(listColumns);
+    FreeAndNil(rttiType);
   end;
 end;
 

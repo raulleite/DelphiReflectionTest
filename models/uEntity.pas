@@ -10,7 +10,12 @@ type
   [Id('CodEntity')]
   TEntity = class(TObject)
   private
-    fCodEntity: Integer;
+    fCodEntity : Integer;
+    fTipoEntity: Integer;
+    fNome      : String;
+
+  public
+    property Nome: String read fNome write fNome;
   end;
 
 implementation

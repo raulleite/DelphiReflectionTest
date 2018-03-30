@@ -22,4 +22,18 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = Button1Click
   end
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF16
+    Catalog = ''
+    TransactIsolationLevel = tiReadCommitted
+    Connected = True
+    HostName = ''
+    Port = 0
+    Database = 'D:\sources\pascal\RappyTestPascal\db\TESTDB.FDB'
+    User = 'SYSDBA'
+    Password = 'masterkey'
+    Protocol = 'firebird-2.5'
+    Left = 432
+    Top = 160
+  end
 end

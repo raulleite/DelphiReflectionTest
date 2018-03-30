@@ -4,6 +4,9 @@ interface
 
 uses
   Dialogs,
+  ZAbstractRODataset,
+  ZAbstractDataset,
+  ZDataset,
   ZConnection,
   uIConnection,
   System.UITypes,
@@ -36,8 +39,10 @@ type
 
 implementation
 
-//const
-//  ERROR_DATABASE = 'Falha ao executar comando';
+uses
+  uLibObj,
+  uLibSql,
+  System.Rtti;
 
 constructor TMainConn.Create(connection: TZConnection);
 begin
@@ -100,13 +105,57 @@ except
 end;
 
 function TMainConn.getObject<T>(where: String): T;
+var
+  qryGet     : TZQuery;
+  rttiContext: TRttiContext;
 begin
   Result:= nil;
+
+  try
+    qryGet:= TZQuery.Create(nil);
+    qryGet.Connection:= fConnection;
+    qryGet.SQL.Text:= TLibSql<T>.getSqlSelect + where;
+    qryGet.Open;
+
+    if (qryGet.RecordCount > 0) then
+    begin
+      if (qryGet.RecordCount > 1) then
+        raise Exception.Create(String.Format('Pesquisa trouxe mais de um registro para: %s'#13#10'%s',
+                                             [rttiContext.GetType(TypeInfo(T)).Name,
+                                              where]));
+      Result:= TLibObj<T>.fillObject(qryGet);
+    end;
+  finally
+    FreeAndNil(qryGet);
+  end;
 end;
 
 function TMainConn.getListObject<T>(where: String): TList<T>;
+var
+  qryGet     : TZQuery;
+  rttiContext: TRttiContext;
 begin
   Result:= nil;
+
+  try
+    qryGet:= TZQuery.Create(nil);
+    qryGet.Connection:= fConnection;
+    qryGet.SQL.Text:= TLibSql<T>.getSqlSelect + where;
+    qryGet.Open;
+
+    if (qryGet.RecordCount > 0) then
+    begin
+      Result:= TList<T>.Create;
+
+      while (not qryGet.Eof) do
+      begin
+        Result.Add(TLibObj<T>.fillObject(qryGet));
+        qryGet.Next;
+      end;
+    end;
+  finally
+    FreeAndNil(qryGet);
+  end;
 end;
 
 function TMainConn.saveObject<T>(obj: T): Boolean;
