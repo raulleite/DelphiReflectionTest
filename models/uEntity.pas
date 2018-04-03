@@ -7,7 +7,7 @@ uses
 
 type
   [Table('Entity')]
-  [Id('CodEntity')]
+  [Id('fCodEntity')]
   TEntity = class(TObject)
   private
     fCodEntity : Integer;
@@ -15,7 +15,9 @@ type
     fNome      : String;
 
   public
-    property Nome: String read fNome write fNome;
+    property CodEntity : Integer read fCodEntity  write fCodEntity;
+    property TipoEntity: Integer read fTipoEntity write fTipoEntity;
+    property Nome      : String  read fNome       write fNome;
   end;
 
 implementation

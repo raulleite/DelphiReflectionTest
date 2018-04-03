@@ -7,7 +7,7 @@ uses
   System.Generics.Collections;
 
 type
-  TColumnAttributes = (caRequired, caNoUpdate, caNoInsert);
+  TColumnAttributes = (caRequired, caNoUpdate, caNoInsert, caNoUse);
 
   TSetColumnAttributes = set of TColumnAttributes;
 
@@ -69,7 +69,7 @@ end;
 constructor Column.Create(const columnName: String; columnAttributes: TSetColumnAttributes);
 begin
   fColumnName      := columnName;
-  fColumnAttributes:= fColumnAttributes
+  fColumnAttributes:= columnAttributes;
 end;
 
 

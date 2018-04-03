@@ -4,10 +4,8 @@ interface
 
 uses
   Dialogs,
-  ZAbstractRODataset,
-  ZAbstractDataset,
-  ZDataset,
-  ZConnection,
+  Data.SqlExpr,
+  DBXCommon,
   uIConnection,
   System.UITypes,
   System.SysUtils,
@@ -15,10 +13,12 @@ uses
 
 type
   TMainConn = class(TInterfacedObject, IConnection)
+  private
+    fConnection : TSQLConnection;
+    fTransaction: TTransactionDesc;
+    function getQuery: TSQLQuery;
   public
-    fConnection: TZConnection;
-
-    constructor Create(connection: TZConnection);
+    constructor Create(connection: TSQLConnection);
     destructor Destroy; override;
 
     function startTransaction: Boolean;
@@ -44,7 +44,7 @@ uses
   uLibSql,
   System.Rtti;
 
-constructor TMainConn.Create(connection: TZConnection);
+constructor TMainConn.Create(connection: TSQLConnection);
 begin
   fConnection:= connection;
 end;
@@ -52,12 +52,18 @@ end;
 destructor TMainConn.Destroy;
 begin
   if (fConnection.InTransaction) then
-    fConnection.Rollback;
+    fConnection.Rollback(fTransaction);
 
   if (fConnection.Connected) then
-    fConnection.Disconnect;
+    fConnection.CloneConnection;
 
   FreeAndNil(fConnection);
+end;
+
+function TMainConn.getQuery: TSQLQuery;
+begin
+  Result:= TSQLQuery.Create(nil);
+  Result.SQLConnection:= fConnection;
 end;
 
 function TMainConn.startTransaction;
@@ -70,7 +76,7 @@ begin
     if (fConnection.InTransaction) then
       raise Exception.Create('A conexão com o banco de dados não foi definida');
 
-    fConnection.StartTransaction;
+    fConnection.StartTransaction(fTransaction);
 
     Result:= True;
   except
@@ -87,14 +93,14 @@ begin
   Result:= False;
   try
     if (fConnection.InTransaction) then
-      fConnection.Commit;
+      fConnection.Commit(fTransaction);
 
     Result:= True;
-except
+  except
     On E : Exception do
     begin
       if (fConnection.InTransaction) then
-        fConnection.Rollback;
+        fConnection.Rollback(fTransaction);
 
       MessageDlg('Falha ao efetuar commit na transação:'#13#10 + e.Message,
                  mtWarning,
@@ -106,14 +112,13 @@ end;
 
 function TMainConn.getObject<T>(where: String): T;
 var
-  qryGet     : TZQuery;
+  qryGet     : TSQLQuery;
   rttiContext: TRttiContext;
 begin
   Result:= nil;
 
   try
-    qryGet:= TZQuery.Create(nil);
-    qryGet.Connection:= fConnection;
+    qryGet:= Self.getQuery;
     qryGet.SQL.Text:= TLibSql<T>.getSqlSelect + where;
     qryGet.Open;
 
@@ -132,14 +137,13 @@ end;
 
 function TMainConn.getListObject<T>(where: String): TList<T>;
 var
-  qryGet     : TZQuery;
+  qryGet     : TSQLQuery;
   rttiContext: TRttiContext;
 begin
   Result:= nil;
 
   try
-    qryGet:= TZQuery.Create(nil);
-    qryGet.Connection:= fConnection;
+    qryGet:= Self.getQuery;
     qryGet.SQL.Text:= TLibSql<T>.getSqlSelect + where;
     qryGet.Open;
 
@@ -159,9 +163,24 @@ begin
 end;
 
 function TMainConn.saveObject<T>(obj: T): Boolean;
+var
+  qryGet     : TSQLQuery;
+  rttiContext: TRttiContext;
 begin
   Result:= False;
 
+  try
+    qryGet:= Self.getQuery;
+    qryGet.SQLConnection:= fConnection;
+    qryGet.SQL.Text:= TLibSql<T>.getSqlInsert;
+
+    TLibObj<T>.fillQuery(obj, qryGet);
+    qryGet.ExecSQL;
+
+    Result:= True
+  finally
+    FreeAndNil(qryGet);
+  end;
 end;
 
 function TMainConn.saveListObject<T>(listObj: TList<T>): Boolean;
@@ -172,12 +191,28 @@ begin
 
   for obj in listObj do
     Self.saveObject(obj);
+
+  Result:= True;
 end;
 
 function TMainConn.updateObject<T>(obj: T): Boolean;
+var
+  qryGet     : TSQLQuery;
+  rttiContext: TRttiContext;
 begin
   Result:= False;
 
+  try
+    qryGet:= Self.getQuery;
+    qryGet.SQL.Text:= TLibSql<T>.getSqlUpdate;
+
+    TLibObj<T>.fillQuery(obj, qryGet);
+    qryGet.ExecSQL;
+
+    Result:= True
+  finally
+    FreeAndNil(qryGet);
+  end;
 end;
 
 function TMainConn.updateListObject<T>(listObj: TList<T>): Boolean;
@@ -188,12 +223,28 @@ begin
 
   for obj in listObj do
     Self.updateObject(obj);
+
+  Result:= True;
 end;
 
 function TMainConn.deleteObject<T>(obj: T): Boolean;
+var
+  qryGet     : TSQLQuery;
+  rttiContext: TRttiContext;
 begin
   Result:= False;
 
+  try
+    qryGet:= Self.getQuery;
+    qryGet.SQL.Text:= TLibSql<T>.getSqlDelete;
+
+    TLibObj<T>.fillQuery(obj, qryGet, True);
+    qryGet.ExecSQL;
+
+    Result:= True
+  finally
+    FreeAndNil(qryGet);
+  end;
 end;
 
 function TMainConn.deleteListObject<T>(listObj: TList<T>): Boolean;

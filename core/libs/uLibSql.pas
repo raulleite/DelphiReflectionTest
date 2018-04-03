@@ -26,6 +26,7 @@ const
                ' where %s ';
 
   COLUMN_VALUE = '%s = :%s';
+
 type
   TLibSql<T> = class
   private
@@ -54,6 +55,7 @@ var
   rttiField      : TRttiField;
   custonAttribute: TCustomAttribute;
   fillColumn     : TFunc<Boolean, String, String>;
+  dontUse        : Boolean;
 begin
   Result:= TList<String>.Create;
 
@@ -61,7 +63,7 @@ begin
                 begin
                   if (withValues) then
                     Result:= String.Format(COLUMN_VALUE,
-                                           [column.Empty,
+                                           [column,
                                             column])
                   else
                     Result:= column
@@ -72,16 +74,25 @@ begin
 
     for rttiField in rttiType.GetFields do
     begin
+      dontUse   := False;
       columnName:= String.Empty;
 
       for custonAttribute in rttiField.GetAttributes do
         if (custonAttribute is Column) then
         begin
+          dontUse:= TColumnAttributes.caNoUse in Column(custonAttribute).columnAttributes;
+
+          if (dontUse) then
+            Break;
+
           if (Column(custonAttribute).columnName.Equals(String.Empty)) then
             columnName:= fillColumn(withValues, Column(custonAttribute).columnName.ToUpper);
 
           Break;
         end;
+
+      if (dontUse) then
+        Continue;
 
       if (columnName.Equals(String.Empty)) then
         columnName:= fillColumn(withValues, rttiField.Name.Remove(0, 1).ToUpper);
@@ -95,22 +106,50 @@ end;
 
 class function TLibSql<T>.getFieldsId(): TList<String>;
 var
-  custonAttribute: TCustomAttribute;
-  rttiType       : TRttiType;
-  column         : String;
+  customAttTable: TCustomAttribute;
+  customAttField: TCustomAttribute;
+  rttiType      : TRttiType;
+  rttiField     : TRttiField;
+  columnName    : String;
+  columnField   : String;
 begin
   Result:= TList<String>.Create;
 
   try
     rttiType:= TRttiContext.Create.GetType(TypeInfo(T));
 
-    for custonAttribute in rttiType.GetAttributes do
-      if (custonAttribute is Id) then
+    for customAttTable in rttiType.GetAttributes do
+      if (customAttTable is Id) then
       begin
-        for column in Id(custonAttribute).listId do
+        for columnField in Id(customAttTable).listId do
+        begin
+          rttiField:= rttiType.GetField(columnField);
+
+          if (rttiField = nil) then
+            raise Exception.Create(String.Format('Field "%s", não encontrada no objeto "%s".',
+                                                 [columnField,
+                                                  rttiType.Name]));
+
+          columnName:= String.Empty;
+
+          for customAttField in rttiField.GetAttributes do
+            if (customAttField is Column) then
+            begin
+              if (Column(customAttField).columnName.Equals(String.Empty)) then
+                columnName:= Column(customAttField).columnName.ToUpper;
+
+              Break;
+            end;
+
+          if (columnName.Equals(String.Empty)) then
+            columnName:= rttiField.Name.Remove(0, 1).ToUpper;
+
+
           Result.Add(String.Format(COLUMN_VALUE,
-                                   [column.ToUpper,
-                                    column.ToUpper]));
+                                   [columnName.ToUpper,
+                                    columnName.ToUpper]));
+        end;
+
         Break;
       end;
 

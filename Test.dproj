@@ -75,6 +75,9 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -91,7 +94,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="uFMain.pas">
-            <Form>Form1</Form>
+            <Form>frmMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="core\interfaces\uIConnection.pas"/>
@@ -100,6 +103,15 @@
         <DCCReference Include="core\libs\uLibObj.pas"/>
         <DCCReference Include="core\attributes\uAttributes.pas"/>
         <DCCReference Include="core\libs\uLibSql.pas"/>
+        <DCCReference Include="controllers\uControlEntity.pas"/>
+        <DCCReference Include="models\uMovement.pas"/>
+        <DCCReference Include="models\uItemMovement.pas"/>
+        <DCCReference Include="models\uItem.pas"/>
+        <DCCReference Include="controllers\uControlMovement.pas"/>
+        <DCCReference Include="core\connections\uConnSingleton.pas"/>
+        <DCCReference Include="controllers\uControlItemMovement.pas"/>
+        <DCCReference Include="controllers\uControlItem.pas"/>
+        <DCCReference Include="models\uStock.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -120,10 +132,15 @@
                 <Source>
                     <Source Name="MainSource">Test.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>
             </Platforms>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
