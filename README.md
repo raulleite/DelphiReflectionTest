@@ -5,6 +5,8 @@ The biggest problem was that Embarcadero provided only the trial version Starter
 In this case ZeosLib was used for connections to the Database.
 "svn checkout https://svn.code.sf.net/p/zeoslib/code-0/trunk zeoslib-code-0"
 
+ZeosLib is no more problem, the rest of the project was refactored in DBExpress
+
 Test Proposal:
 + Quantidade de Tabelas no banco de dados - minimo 5, máximo 10.
 + Criar modelagem do banco de dados (DER).
