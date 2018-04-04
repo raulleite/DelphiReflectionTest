@@ -14,3 +14,5 @@ Test Proposal:
 + Implementar o projeto usando Delphi, qualquer versão de Delphi
 + Trabalhar com pelo menos 1 formulário  Master/Detail.
 + Preferencialmente conexão com o bando de dados DBExpress.
+
+Futuramente será aprimorado o fonte e transcrito para C# e Java.
